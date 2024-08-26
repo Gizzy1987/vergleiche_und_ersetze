@@ -225,3 +225,8 @@ class App:
         except Exception as e:
             error_logger.error(f"Fehler bei der Übersetzung: {e}")
             messagebox.showerror("Fehler", f"Fehler bei der Übersetzung: {e}")
+
+def start_gui(german_path, english_path):
+    root = tk.Tk()
+    app = App(root, german_path, english_path)
+    root.mainloop()

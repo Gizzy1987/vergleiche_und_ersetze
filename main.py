@@ -1,6 +1,6 @@
 import os
 import shutil
-from Module import file_handler, text_processor, gui, logger
+from module import file_handler, text_processor, gui, logger
 
 def main():
     # Pfade von der Kommandozeile einlesen
