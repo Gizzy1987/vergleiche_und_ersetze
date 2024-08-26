@@ -9,3 +9,16 @@ FILE:text.asm
 DIR:audio
 DIR:constants
 FILE:data\predef_pointers.asm
+FILE:data\growth_rates.asm
+FILE:data\icon_pointers.asm
+FILE:data\predef_pointers.asm
+FILE:data\text_predef_pointers.asm
+FILE:data\tilemaps.asm
+FILE:data\battle\always_happen_effects.asm
+FILE:data\battle\critical_hit_moves.asm
+FILE:data\battle\residual_effects_1.asm
+FILE:data\battle\residual_effects_2.asm
+FILE:data\battle\set_damage_effects.asm
+FILE:data\battle\special_effects.asm
+FILE:data\battle\stat_modifiers.asm
+FILE:data\battle\stat_mod_names.asm
