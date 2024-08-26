@@ -9,11 +9,14 @@ def write_file(file_path, lines):
     with open(file_path, 'w', encoding='utf-8') as file:
         file.writelines(lines)
 
-def list_asm_files(directory):
+def list_asm_files(directory, ignore_dirs, ignore_files):
     asm_files = []
     for root, dirs, files in os.walk(directory):
+        relative_root = os.path.relpath(root, directory)
+        if any(relative_root.startswith(ignore_dir) for ignore_dir in ignore_dirs):
+            continue
         for file in files:
-            if file.endswith('.asm'):
+            if file.endswith('.asm') and os.path.relpath(os.path.join(root, file), directory) not in ignore_files:
                 asm_files.append(os.path.relpath(os.path.join(root, file), directory))
     return asm_files
 
@@ -38,7 +41,7 @@ def backup_files(source_dir, backup_dir, ignore_dirs, ignore_files):
         if any(relative_root.startswith(ignore_dir) for ignore_dir in ignore_dirs):
             continue
         for file_name in files:
-            if file_name in ignore_files:
+            if os.path.relpath(os.path.join(root, file_name), source_dir) in ignore_files:
                 continue
             full_file_name = os.path.join(root, file_name)
             relative_path = os.path.relpath(full_file_name, source_dir)

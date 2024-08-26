@@ -3,9 +3,9 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter.ttk import Progressbar
 from .file_handler import read_file, write_file, list_asm_files, read_ignore_list
-from .text_processor import extract_texts, replace_texts, validate_syntax, update_charmap
+from .text_processor import extract_texts, replace_texts, validate_syntax
 from .translator import google_translate, chatgpt_translate, copilot_translate
-from .logger import error_logger, operations_logger, changes_logger, missing_texts_logger
+from .logger import error_logger, changes_logger
 
 class App:
     def __init__(self, root, german_path, english_path):
@@ -14,9 +14,9 @@ class App:
         self.german_path = german_path
         self.english_path = english_path
         self.ignore_dirs, self.ignore_files = read_ignore_list('ignorieren.txt')
-        self.create_widgets()
         self.current_file_index = 0
-        self.asm_files = list_asm_files(english_path)
+        self.asm_files = list_asm_files(english_path, self.ignore_dirs, self.ignore_files)
+        self.create_widgets()
         self.load_next_file()
 
     def create_widgets(self):
@@ -41,36 +41,21 @@ class App:
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(side='bottom', fill='x')
 
-        self.replace_button = tk.Button(self.button_frame, text='Ersetzen', command=self.replace_text)
-        self.replace_button.pack(side='left')
-        self.create_tooltip(self.replace_button, "Ersetzt den Text in der aktuellen Datei")
-
-        self.skip_button = tk.Button(self.button_frame, text='Überspringen', command=self.skip_file)
-        self.skip_button.pack(side='left')
-        self.create_tooltip(self.skip_button, "Überspringt die aktuelle Datei")
-
-        self.cancel_button = tk.Button(self.button_frame, text='Abbrechen', command=self.root.quit)
-        self.cancel_button.pack(side='left')
-        self.create_tooltip(self.cancel_button, "Beendet das Programm")
-
-        self.ignore_file_button = tk.Button(self.button_frame, text='Datei Ignorieren', command=self.ignore_file)
-        self.ignore_file_button.pack(side='left')
-        self.create_tooltip(self.ignore_file_button, "Ignoriert die aktuelle Datei")
-
-        self.ignore_folder_button = tk.Button(self.button_frame, text='Ordner Ignorieren', command=self.ignore_folder)
-        self.ignore_folder_button.pack(side='left')
-        self.create_tooltip(self.ignore_folder_button, "Ignoriert den aktuellen Ordner")
-
-        self.link_button = tk.Button(self.button_frame, text='Linken', command=self.link_files)
-        self.link_button.pack(side='left')
-        self.create_tooltip(self.link_button, "Verlinkt zwei Dateien")
-
-        self.translate_button = tk.Button(self.button_frame, text='Übersetzen', command=self.translate_text)
-        self.translate_button.pack(side='left')
-        self.create_tooltip(self.translate_button, "Übersetzt den ausgewählten Text")
+        self.create_button(self.button_frame, 'Ersetzen', self.replace_text, "Ersetzt den Text in der aktuellen Datei")
+        self.create_button(self.button_frame, 'Überspringen', self.skip_file, "Überspringt die aktuelle Datei")
+        self.create_button(self.button_frame, 'Abbrechen', self.root.quit, "Beendet das Programm")
+        self.create_button(self.button_frame, 'Datei Ignorieren', self.ignore_file, "Ignoriert die aktuelle Datei")
+        self.create_button(self.button_frame, 'Ordner Ignorieren', self.ignore_folder, "Ignoriert den aktuellen Ordner")
+        self.create_button(self.button_frame, 'Linken', self.link_files, "Verlinkt zwei Dateien")
+        self.create_button(self.button_frame, 'Übersetzen', self.translate_text, "Übersetzt den ausgewählten Text")
 
         self.progress = Progressbar(self.root, orient='horizontal', length=100, mode='determinate')
         self.progress.pack(side='bottom', fill='x')
+
+    def create_button(self, frame, text, command, tooltip_text):
+        button = tk.Button(frame, text=text, command=command)
+        button.pack(side='left')
+        self.create_tooltip(button, tooltip_text)
 
     def create_tooltip(self, widget, text):
         tooltip = tk.Toplevel(widget)
@@ -100,27 +85,27 @@ class App:
             except FileNotFoundError:
                 german_lines = []
 
-            self.english_text_box.delete(1.0, tk.END)
-            self.english_text_box.insert(tk.END, ''.join(english_lines))
-            self.german_text_box.delete(1.0, tk.END)
-            self.german_text_box.insert(tk.END, ''.join(german_lines))
-            self.english_path_label.config(text=f"Englischer Pfad: {english_file_path}")
-            self.german_path_label.config(text=f"Deutscher Pfad: {german_file_path}")
-
-            # Vorschau der Änderungen in der rechten Textbox
-            german_texts = extract_texts(german_lines)
-            english_texts = extract_texts(english_lines)
-            new_english_lines = replace_texts(english_lines, german_texts, english_texts, self.ignore_files)
-            self.preview_text_box.delete(1.0, tk.END)
-            self.preview_text_box.insert(tk.END, ''.join(new_english_lines))
-
-            # Markierung der Texte innerhalb der Anführungszeichen
-            self.mark_texts(self.german_text_box, german_texts)
-            self.mark_texts(self.preview_text_box, german_texts)
-
+            self.update_text_boxes(english_lines, german_lines, english_file_path, german_file_path)
             self.current_file_index += 1
         else:
             messagebox.showinfo("Info", "Alle Dateien wurden bearbeitet.")
+
+    def update_text_boxes(self, english_lines, german_lines, english_file_path, german_file_path):
+        self.english_text_box.delete(1.0, tk.END)
+        self.english_text_box.insert(tk.END, ''.join(english_lines))
+        self.german_text_box.delete(1.0, tk.END)
+        self.german_text_box.insert(tk.END, ''.join(german_lines))
+        self.english_path_label.config(text=f"Englischer Pfad: {english_file_path}")
+        self.german_path_label.config(text=f"Deutscher Pfad: {german_file_path}")
+
+        german_texts = extract_texts(german_lines)
+        english_texts = extract_texts(english_lines)
+        new_english_lines = replace_texts(english_lines, german_texts, english_texts, self.ignore_files)
+        self.preview_text_box.delete(1.0, tk.END)
+        self.preview_text_box.insert(tk.END, ''.join(new_english_lines))
+
+        self.mark_texts(self.german_text_box, german_texts)
+        self.mark_texts(self.preview_text_box, german_texts)
 
     def mark_texts(self, text_box, texts):
         for text in texts:
@@ -136,33 +121,21 @@ class App:
 
     def replace_text(self):
         try:
-            # Aktuelle Datei laden
             english_file_path = os.path.join(self.english_path, self.asm_files[self.current_file_index - 1])
             english_lines = read_file(english_file_path)
-
-            # Deutsche Datei laden
             german_file_path = os.path.join(self.german_path, self.asm_files[self.current_file_index - 1])
             german_lines = read_file(german_file_path)
 
-            # Texte extrahieren
             german_texts = extract_texts(german_lines)
             english_texts = extract_texts(english_lines)
-
-            # Texte ersetzen
             new_english_lines = replace_texts(english_lines, german_texts, english_texts, self.ignore_files)
 
-            # Syntaxprüfung
             syntax_check = validate_syntax(new_english_lines)
             if syntax_check is not True:
                 raise SyntaxError(syntax_check)
 
-            # Änderungen in die Datei schreiben
             write_file(english_file_path, new_english_lines)
-
-            # Loggen der erfolgreichen Änderung
             changes_logger.info(f"Texte in Datei {english_file_path} erfolgreich ersetzt.")
-
-            # Nächste Datei laden
             self.load_next_file()
 
         except SyntaxError as e:
@@ -177,9 +150,10 @@ class App:
 
     def ignore_file(self):
         try:
-            english_file_path = self.asm_files[self.current_file_index - 1]
+            current_file = self.asm_files[self.current_file_index - 1]
+            self.ignore_files.append(current_file)
             with open('ignorieren.txt', 'a', encoding='utf-8') as file:
-                file.write(f"FILE:{english_file_path}\n")
+                file.write(f"FILE:{current_file}\n")
             self.load_next_file()
         except Exception as e:
             error_logger.error(f"Fehler beim Ignorieren der Datei: {e}")
@@ -188,6 +162,7 @@ class App:
     def ignore_folder(self):
         try:
             current_folder = os.path.dirname(self.asm_files[self.current_file_index - 1])
+            self.ignore_dirs.append(current_folder)
             with open('ignorieren.txt', 'a', encoding='utf-8') as file:
                 file.write(f"DIR:{current_folder}\n")
             self.asm_files = [f for f in self.asm_files if not f.startswith(current_folder)]
@@ -198,23 +173,17 @@ class App:
 
     def link_files(self):
         try:
-            # Deutsche Datei auswählen
             german_file_path = filedialog.askopenfilename(title="Deutsche Datei auswählen", filetypes=[("ASM Dateien", "*.asm")])
             if not german_file_path:
                 return
 
-            # Englische Datei auswählen
             english_file_path = filedialog.askopenfilename(title="Englische Datei auswählen", filetypes=[("ASM Dateien", "*.asm")])
             if not english_file_path:
                 return
 
-            # Deutsche Datei laden
             german_lines = read_file(german_file_path)
-
-            # Englische Datei laden
             english_lines = read_file(english_file_path)
 
-            # Neue Fenster für die Dateien erstellen
             link_window = tk.Toplevel(self.root)
             link_window.title("Dateien verlinken")
 
@@ -228,25 +197,17 @@ class App:
 
             def replace_linked_text():
                 try:
-                    # Markierten Text aus beiden Textboxen holen
                     german_selected_text = german_text_box.get(tk.SEL_FIRST, tk.SEL_LAST)
                     english_selected_text = english_text_box.get(tk.SEL_FIRST, tk.SEL_LAST)
 
-                    # Texte ersetzen
                     new_english_lines = [line.replace(english_selected_text, german_selected_text) for line in english_lines]
 
-                    # Syntaxprüfung
                     syntax_check = validate_syntax(new_english_lines)
                     if syntax_check is not True:
                         raise SyntaxError(syntax_check)
 
-                    # Änderungen in die Datei schreiben
                     write_file(english_file_path, new_english_lines)
-
-                    # Loggen der erfolgreichen Änderung
                     changes_logger.info(f"Texte in Datei {english_file_path} erfolgreich ersetzt.")
-
-                    # Fenster schließen
                     link_window.destroy()
 
                 except SyntaxError as e:
@@ -270,7 +231,6 @@ class App:
                 messagebox.showinfo("Info", "Bitte wählen Sie einen Text zum Übersetzen aus.")
                 return
 
-            # Übersetzungsoptionen anzeigen
             translate_window = tk.Toplevel(self.root)
             translate_window.title("Übersetzungsoptionen")
 
@@ -280,7 +240,7 @@ class App:
                 translate_window.destroy()
 
             def chatgpt_translate_text():
-                api_key = "YOUR_OPENAI_API_KEY"  # Ersetze durch deinen OpenAI API-Schlüssel
+                api_key = "YOUR_OPENAI_API_KEY"
                 translated_text = chatgpt_translate(selected_text, target_language='en', api_key=api_key)
                 self.preview_text_box.insert(tk.INSERT, translated_text)
                 translate_window.destroy()
