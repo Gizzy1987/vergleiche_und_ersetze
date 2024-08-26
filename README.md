@@ -16,9 +16,9 @@ Dieses Programm durchsucht zwei Pfade, die über die Kommandozeile übermittelt 
 ## Nutzung
 ```bash
 python main.py <german_path> <english_path>
+```
 
-
-vergleiche_und_ersetze/
+Vergleiche_und_ersetze/
 │
 ├── Module/
 │   ├── __init__.py
