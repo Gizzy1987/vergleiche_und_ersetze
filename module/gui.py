@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter.ttk import Progressbar
@@ -112,7 +113,7 @@ class App:
     def ignore_folder(self):
         try:
             folder_path = os.path.dirname(os.path.join(self.english_path, self.asm_files[self.current_file_index - 1]))
-            with open('ignorieren.txt', 'a', encoding='utf-8') as file:
+            with open('ignorieren.txt', 'a', encoding='utf-8') as file):
                 file.write(folder_path + '\n')
             self.load_next_file()
         except Exception as e:
