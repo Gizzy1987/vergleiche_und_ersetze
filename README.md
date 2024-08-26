@@ -6,7 +6,7 @@ Dieses Programm durchsucht zwei Pfade, die über die Kommandozeile übermittelt 
 ## Installation
 1. Klone das Repository:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/Gizzy1987/vergleiche_und_ersetze.git
     ```
 2. Installiere die Abhängigkeiten:
     ```bash
@@ -17,47 +17,6 @@ Dieses Programm durchsucht zwei Pfade, die über die Kommandozeile übermittelt 
 ```bash
 python main.py <german_path> <english_path>
 ```
-
-Vergleiche_und_ersetze/
-│
-├── Module/
-│   ├── __init__.py
-│   ├── file_handler.py
-│   ├── text_processor.py
-│   ├── gui.py
-│   ├── logger.py
-│
-├── Logs/
-│   ├── error.log
-│   ├── operations.log
-│   ├── changes.log
-│   ├── missing_texts.log
-│
-├── main.py
-├── ignorieren.txt
-└── README.md
-
-
-GUI
-Die GUI bietet verschiedene Buttons und Funktionen zum Bearbeiten und Übersetzen der Texte.
-
-Buttons
-Ersetzen: Schreibt eine Änderung in die kopierte englische Datei.
-Überspringen: Nimmt die nächste Datei und ändert die aktuelle Datei nicht.
-Abbrechen: Beendet das Programm.
-Datei Ignorieren: Schreibt die aktuelle Datei auf die ignorieren.txt.
-Ordner Ignorieren: Schreibt den aktuellen Ordner auf die ignorieren.txt.
-Linken: Ermöglicht das Verlinken von deutschen und englischen Dateien zur manuellen Textübertragung.
-Logs
-Logs werden im Ordner “Logs” erstellt:
-
-Fehlerlogs (error.log)
-Betriebslogs (operations.log)
-Änderungslogs (changes.log)
-Logs für fehlende Texte (missing_texts.log)
-Funktionen
-Textersetzung
-Die Funktion replace_text ersetzt die Texte in den englischen Dateien durch die deutschen Texte und führt eine Syntaxprüfung durch, um sicherzustellen, dass die Änderungen die Syntax nicht beschädigen.
 
 Verlinkung von Dateien
 Die Funktion link_files ermöglicht es, zwei Dateien (eine deutsche und eine englische) auszuwählen und Textstellen manuell zu verlinken. Der markierte Text in der englischen Datei wird durch den markierten Text in der deutschen Datei ersetzt.
