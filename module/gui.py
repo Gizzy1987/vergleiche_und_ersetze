@@ -78,31 +78,31 @@ class App:
         if self.current_file_index < len(self.asm_files):
             english_file_path = os.path.join(self.english_path, self.asm_files[self.current_file_index])
             german_file_path = os.path.join(self.german_path, self.asm_files[self.current_file_index])
-            english_lines = read_file(english_file_path)
+            english_content = read_file(english_file_path)
             
             try:
-                german_lines = read_file(german_file_path)
+                german_content = read_file(german_file_path)
             except FileNotFoundError:
-                german_lines = []
+                german_content = ""
 
-            self.update_text_boxes(english_lines, german_lines, english_file_path, german_file_path)
+            self.update_text_boxes(english_content, german_content, english_file_path, german_file_path)
             self.current_file_index += 1
         else:
             messagebox.showinfo("Info", "Alle Dateien wurden bearbeitet.")
 
-    def update_text_boxes(self, english_lines, german_lines, english_file_path, german_file_path):
+    def update_text_boxes(self, english_content, german_content, english_file_path, german_file_path):
         self.english_text_box.delete(1.0, tk.END)
-        self.english_text_box.insert(tk.END, ''.join(english_lines))
+        self.english_text_box.insert(tk.END, english_content)
         self.german_text_box.delete(1.0, tk.END)
-        self.german_text_box.insert(tk.END, ''.join(german_lines))
+        self.german_text_box.insert(tk.END, german_content)
         self.english_path_label.config(text=f"Englischer Pfad: {english_file_path}")
         self.german_path_label.config(text=f"Deutscher Pfad: {german_file_path}")
 
-        german_texts = extract_texts(german_lines)
-        english_texts = extract_texts(english_lines)
-        new_english_lines = replace_texts(english_lines, german_texts, english_texts, self.ignore_files)
+        german_texts = extract_texts(german_content)
+        english_texts = extract_texts(english_content)
+        new_english_content, success = replace_texts(english_content, german_texts, self.ignore_files)
         self.preview_text_box.delete(1.0, tk.END)
-        self.preview_text_box.insert(tk.END, ''.join(new_english_lines))
+        self.preview_text_box.insert(tk.END, new_english_content)
 
         self.mark_texts(self.german_text_box, german_texts)
         self.mark_texts(self.preview_text_box, german_texts)
@@ -122,19 +122,21 @@ class App:
     def replace_text(self):
         try:
             english_file_path = os.path.join(self.english_path, self.asm_files[self.current_file_index - 1])
-            english_lines = read_file(english_file_path)
+            english_content = read_file(english_file_path)
             german_file_path = os.path.join(self.german_path, self.asm_files[self.current_file_index - 1])
-            german_lines = read_file(german_file_path)
+            german_content = read_file(german_file_path)
 
-            german_texts = extract_texts(german_lines)
-            english_texts = extract_texts(english_lines)
-            new_english_lines = replace_texts(english_lines, german_texts, english_texts, self.ignore_files)
+            german_texts = extract_texts(german_content)
+            new_english_content, success = replace_texts(english_content, german_texts, self.ignore_files)
 
-            syntax_check = validate_syntax(new_english_lines)
+            if not success:
+                raise ValueError("Die Anzahl der Texte in den deutschen und englischen Dateien stimmt nicht überein.")
+
+            syntax_check = validate_syntax(new_english_content)
             if syntax_check is not True:
                 raise SyntaxError(syntax_check)
 
-            write_file(english_file_path, new_english_lines)
+            write_file(english_file_path, new_english_content)
             changes_logger.info(f"Texte in Datei {english_file_path} erfolgreich ersetzt.")
             self.load_next_file()
 
@@ -181,32 +183,32 @@ class App:
             if not english_file_path:
                 return
 
-            german_lines = read_file(german_file_path)
-            english_lines = read_file(english_file_path)
+            german_content = read_file(german_file_path)
+            english_content = read_file(english_file_path)
 
             link_window = tk.Toplevel(self.root)
             link_window.title("Dateien verlinken")
 
             german_text_box = tk.Text(link_window, wrap='word')
             german_text_box.pack(side='left', expand=True, fill='both')
-            german_text_box.insert(tk.END, ''.join(german_lines))
+            german_text_box.insert(tk.END, german_content)
 
             english_text_box = tk.Text(link_window, wrap='word')
             english_text_box.pack(side='right', expand=True, fill='both')
-            english_text_box.insert(tk.END, ''.join(english_lines))
+            english_text_box.insert(tk.END, english_content)
 
             def replace_linked_text():
                 try:
                     german_selected_text = german_text_box.get(tk.SEL_FIRST, tk.SEL_LAST)
                     english_selected_text = english_text_box.get(tk.SEL_FIRST, tk.SEL_LAST)
 
-                    new_english_lines = [line.replace(english_selected_text, german_selected_text) for line in english_lines]
+                    new_english_content = [line.replace(english_selected_text, german_selected_text) for line in english_content]
 
-                    syntax_check = validate_syntax(new_english_lines)
+                    syntax_check = validate_syntax(new_english_content)
                     if syntax_check is not True:
                         raise SyntaxError(syntax_check)
 
-                    write_file(english_file_path, new_english_lines)
+                    write_file(english_file_path, new_english_content)
                     changes_logger.info(f"Texte in Datei {english_file_path} erfolgreich ersetzt.")
                     link_window.destroy()
 

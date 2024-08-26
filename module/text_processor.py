@@ -1,32 +1,25 @@
 import re
 
-def extract_texts(lines):
-    texts = []
-    for line in lines:
-        matches = re.findall(r'"(.*?)"', line)
-        texts.extend(matches)
-    return texts
+def extract_texts(content):
+    # Regex zum Finden von Textblöcken, einschließlich mehrzeiliger Blöcke
+    return re.findall(r'"(.*?)"', content, re.DOTALL)
 
-def replace_texts(lines, german_texts, english_texts, ignore_list):
-    for i, line in enumerate(lines):
-        for german, english in zip(german_texts, english_texts):
-            if german in line and german not in ignore_list:
-                lines[i] = line.replace(german, english)
-    return lines
+def replace_texts(english_content, german_texts, ignore_list):
+    english_texts = extract_texts(english_content)
+    if len(german_texts) != len(english_texts):
+        print(f"Warnung: Die Anzahl der Texte in den deutschen und englischen Dateien stimmt nicht überein. Datei wird übersprungen.")
+        return english_content, False
+    
+    for eng_text, deu_text in zip(english_texts, german_texts):
+        if eng_text not in ignore_list:
+            english_content = english_content.replace(f'"{eng_text}"', f'"{deu_text}"')
+    
+    return english_content, True
 
-def validate_syntax(lines):
-    """
-    Diese Funktion überprüft die grundlegende Syntax der Assembler-Dateien.
-    """
-    try:
-        for line in lines:
-            # Beispielhafte Syntaxprüfung: Überprüfen, ob jede Zeile mit einem gültigen Befehl beginnt
-            if not re.match(r'^\s*(\w+:)?\s*(\w+)?\s*', line):
-                raise SyntaxError(f"Syntaxfehler in Zeile: {line.strip()}")
+def validate_syntax(content):
+    # Beispielhafte Syntaxprüfung
+    if not content:
+        return "Inhalt ist leer"
+    if '"' in content:
         return True
-    except SyntaxError as e:
-        return str(e)
-
-def update_charmap(charmap_path):
-    # Implementiere die Logik zur Aktualisierung der charmap.asm Datei
-    pass
+    return "Syntaxfehler: Ungültige Zeichen gefunden"
