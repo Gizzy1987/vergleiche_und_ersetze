@@ -1,8 +1,0 @@
-pip install tqdm colorama tkinter
-
-
-python vergleiche_und_ersetze.py /pfad/zu/englischem/verzeichnis /pfad/zu/deutschem/verzeichnis
-
-
-
-python vergleiche_und_ersetze.py "E:\Konsole\Nintendo\Pokemon Hack\pokeyellow-gen-II-master" "E:\Konsole\Nintendo\Pokemon Hack\SRC Pokemon\pokered-gbc-de"
