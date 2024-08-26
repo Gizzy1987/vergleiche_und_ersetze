@@ -12,9 +12,8 @@ def main():
 
     # Sicherungskopie der englischen Dateien erstellen
     backup_path = 'backup'
-    if not os.path.exists(backup_path):
-        os.makedirs(backup_path)
-    file_handler.backup_files(args.english_path, backup_path)
+    ignore_dirs, ignore_files = file_handler.read_ignore_list('ignorieren.txt')
+    file_handler.backup_files(args.english_path, backup_path, ignore_dirs, ignore_files)
 
     # GUI starten
     gui.start_gui(args.german_path, backup_path)

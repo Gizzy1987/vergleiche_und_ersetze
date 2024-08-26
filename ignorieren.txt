@@ -1,0 +1,11 @@
+FILE:audio.asm
+FILE:home.asm
+FILE:includes.asm
+FILE:main.asm
+FILE:maps.asm
+FILE:ram.asm
+FILE:rgbdscheck.asm
+FILE:text.asm
+DIR:audio
+DIR:constants
+FILE:data\predef_pointers.asm
