@@ -1,4 +1,4 @@
-# Assembler Source Code Translator
+# Vergleiche und Ersetze
 
 ## Beschreibung
 Dieses Programm durchsucht zwei Pfade, die über die Kommandozeile übermittelt werden. Diese Pfade enthalten Assembler-Source-Codes für .gb-Spiele, wobei einer auf Deutsch und der andere auf Englisch ist. Das Programm schreibt die Texte der deutschen Version an die richtigen Stellen der englischen Version, ohne den eigentlichen Code zu verändern.
