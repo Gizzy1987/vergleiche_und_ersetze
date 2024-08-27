@@ -22,4 +22,4 @@ FILE:data\battle\set_damage_effects.asm
 FILE:data\battle\special_effects.asm
 FILE:data\battle\stat_modifiers.asm
 FILE:data\battle\stat_mod_names.asm
-
+khgjzffhtfhfhtfjfjfjzffj
